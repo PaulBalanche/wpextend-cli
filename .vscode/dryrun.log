@@ -1,0 +1,7 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/paulbalanche/www/github.com/WPExtend/wpextend-cli'
+ 
+make: Leaving directory `/Users/paulbalanche/www/github.com/WPExtend/wpextend-cli'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+
