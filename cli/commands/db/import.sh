@@ -5,5 +5,9 @@ REMOTE_DB_USER=$(get_config REMOTE_DB_USER "Remote database user")
 REMOTE_DB_PASSWORD=$(get_secret REMOTE_DB_PASSWORD "Remote database password")
 
 cd docker
+make down
+rm -r $PWD/docker/mariadb
 make remote-mysqldump REMOTE_DB_HOST=$REMOTE_DB_HOST REMOTE_DB_USER=$REMOTE_DB_USER REMOTE_DB_PASSWORD=$REMOTE_DB_PASSWORD REMOTE_DB_NAME=$REMOTE_DB_NAME
+make down
+make up-quiet
 cd ..

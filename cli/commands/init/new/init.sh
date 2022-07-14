@@ -1,23 +1,10 @@
 #!/bin/bash
-echo ''
-echo ''
-echo ''
-echo '#################################### Docker setup ####################################'
-echo ''
+echo -e "\n${FONT_BOLD}Docker setup${FONT_NORMAL}"
 SERVER_DOCUMENT_ROOT="web"
-source $COMMANDS_PATH/init/docker/init.sh
+source $CLI_PATH/inc/docker/setup.sh
 
-echo ''
-echo '#################################### Bedrock init ####################################'
-echo ''
+echo -e "\n${FONT_BOLD}Bedrock init${FONT_NORMAL}"
 source $COMMANDS_PATH/init/new/bedrock/init.sh
-
-echo ''
-echo ''
-echo ''
-echo '#################################### Env setup ####################################'
-echo ''
-source $COMMANDS_PATH/init/new/bedrock/env_setup.sh
 
 SITE_TITLE=$(read_input "Site title" "$PROJECT_NAME")
 WP_ADMIN_USER=$(read_input "Wordpress admin user" "admin")

@@ -17,6 +17,10 @@ up:
 	docker-compose up -d --remove-orphans
 	@echo "\n--------------- 🎉 CONGRATS! ---------------\n\nYour website should now be up and running at:\n\n👉 $(PROJECT_HTTP_PROTOCOL)://$(PROJECT_BASE_URL):$(PROJET_PUBLIC_PORT)\n\n---------------------------------------------\n"
 
+up-quiet:
+	docker-compose pull
+	docker-compose up -d --remove-orphans
+
 mutagen:
 	mutagen-compose up
 
@@ -55,13 +59,13 @@ shell:
 wp:
 	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") wp --path=$(WP_ROOT) $(filter-out $@,$(MAKECMDGOALS))
 
-composer-install: down && up
+composer-install: down && up-quiet
 	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") composer install
 
-wp-core-install: down && up
+wp-core-install: down && up-quiet
 	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash wpe-cli/inc/make/wp_core_install.sh $(PROJECT_HTTP_PROTOCOL)://$(PROJECT_BASE_URL):$(PROJET_PUBLIC_PORT) "$(SITE_TITLE)" $(WP_ADMIN_USER) $(WP_ADMIN_PASSWORD) $(WP_ADMIN_EMAIL)
 
-remote-mysqldump: down && up
+remote-mysqldump: up-quiet
 	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") mysqldump --host=$(REMOTE_DB_HOST) --user=$(REMOTE_DB_USER) --password=$(REMOTE_DB_PASSWORD) $(REMOTE_DB_NAME) --result-file=docker/mariadb-init/dump.sql
 
 ## logs	:	View containers logs.
