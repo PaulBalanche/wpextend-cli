@@ -10,7 +10,7 @@ DB_PASSWORD=$(get_secret DB_PASSWORD "Database password" "wordpress")
 DB_HOST=$(get_config DB_HOST "Database host" "mariadb")
 DB_PREFIX=$(get_config DB_PREFIX "Database table prefix" "wp_")
 
-if [ -z "$SERVER_DOCUMENT_ROOT" ]; then SERVER_DOCUMENT_ROOT=$(read_input "Server document root (leave empty if root)"); fi
+if [ -z "$SERVER_DOCUMENT_ROOT" ]; then SERVER_DOCUMENT_ROOT=$(get_config "Server document root (leave empty if root)"); fi
 if [ ! -z "$SERVER_DOCUMENT_ROOT" ]; then SERVER_DOCUMENT_ROOT="/"$SERVER_DOCUMENT_ROOT; fi
 
 echo "### Documentation available at https://wodby.com/docs/stacks/wordpress/local

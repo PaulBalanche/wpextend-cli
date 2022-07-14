@@ -26,7 +26,7 @@ case $yn in
 esac
 
 echo -e "\n${FONT_BOLD}Docker setup${FONT_NORMAL}"
-SERVER_DOCUMENT_ROOT=$(read_input "Server document root (leave empty if root)")
+SERVER_DOCUMENT_ROOT=$(get_config "Server document root (leave empty if root)")
 source $CLI_PATH/inc/docker/setup.sh
 
 # Database
@@ -34,7 +34,7 @@ echo '';
 read -p "Do you want to download a remote database? (y/n) " yn
 case $yn in
     [yY] )
-        source $COMMANDS_PATH/db/download.sh
+        source $COMMANDS_PATH/db/import.sh
         ;;
     [nN] )
         echo '';
