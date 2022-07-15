@@ -59,14 +59,21 @@ shell:
 wp:
 	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") wp --path=$(WP_ROOT) $(filter-out $@,$(MAKECMDGOALS))
 
-composer-install: down && up-quiet
+composer-install:
+	@[ "$(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}")" ] || ( docker-compose pull && docker-compose up -d --remove-orphans )
 	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") composer install
 
-wp-core-install: down && up-quiet
-	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash wpe-cli/inc/make/wp_core_install.sh $(PROJECT_HTTP_PROTOCOL)://$(PROJECT_BASE_URL):$(PROJET_PUBLIC_PORT) "$(SITE_TITLE)" $(WP_ADMIN_USER) $(WP_ADMIN_PASSWORD) $(WP_ADMIN_EMAIL)
+wp-core-install:
+	@[ "$(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}")" ] || ( docker-compose pull && docker-compose up -d --remove-orphans )
+	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash docker/make/wp_core_install.sh $(PROJECT_HTTP_PROTOCOL)://$(PROJECT_BASE_URL):$(PROJET_PUBLIC_PORT) "$(SITE_TITLE)" $(WP_ADMIN_USER) $(WP_ADMIN_PASSWORD) $(WP_ADMIN_EMAIL)
 
-remote-mysqldump: up-quiet
-	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") mysqldump --host=$(REMOTE_DB_HOST) --user=$(REMOTE_DB_USER) --password=$(REMOTE_DB_PASSWORD) $(REMOTE_DB_NAME) --result-file=docker/mariadb-init/dump.sql
+remote-mysqldump:
+	@[ "$(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}")" ] || ( docker-compose pull && docker-compose up -d --remove-orphans )
+	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash docker/make/mysqldump.sh $(REMOTE_DB_HOST) $(REMOTE_DB_USER) $(REMOTE_DB_PASSWORD) $(REMOTE_DB_NAME) $(SQL_FILE)
+
+mysql-import:
+	@[ "$(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}")" ] || ( docker-compose pull && docker-compose up -d --remove-orphans )
+	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash docker/make/mysql_import.sh $(DB_HOST) $(DB_USER) $(DB_PASSWORD) $(DB_NAME) $(SQL_FILE)
 
 ## logs	:	View containers logs.
 ##		You can optinally pass an argument with the service name to limit logs

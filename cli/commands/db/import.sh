@@ -1,13 +1,11 @@
 #!/bin/bash
-REMOTE_DB_HOST=$(get_config REMOTE_DB_HOST "Remote database host")
-REMOTE_DB_NAME=$(get_config REMOTE_DB_NAME "Remote database name")
-REMOTE_DB_USER=$(get_config REMOTE_DB_USER "Remote database user")
-REMOTE_DB_PASSWORD=$(get_secret REMOTE_DB_PASSWORD "Remote database password")
+if [ -z "$SQL_FILENAME" ]; then SQL_FILENAME=$(read_input "SQL filename (for example docker/mariadb-init/dump.sql)"); fi
 
-cd docker
-make down
-make remote-mysqldump REMOTE_DB_HOST=$REMOTE_DB_HOST REMOTE_DB_USER=$REMOTE_DB_USER REMOTE_DB_PASSWORD=$REMOTE_DB_PASSWORD REMOTE_DB_NAME=$REMOTE_DB_NAME
-make down
-rm -r mariadb
-make up-quiet
-cd ..
+echo $SQL_FILENAME" importing..."
+
+if [[ ! -z "$SQL_FILENAME" && -f $SQL_FILENAME ]]
+then
+    cd docker
+    make mysql-import SQL_FILE=$SQL_FILENAME
+    cd ..
+fi

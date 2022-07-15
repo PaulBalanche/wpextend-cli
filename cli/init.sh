@@ -49,17 +49,12 @@ then
 else
 	# Normal choose
 	echo -e "${FONT_BOLD}-- What do you want to do?\n${FONT_NORMAL}"
-	select choose in "Download & import remote database" "Import remote database" "Download remote files" "Remove docker instance"
+	select choose in "Database operation" "Download remote files" "Remove docker instance"
 	do
 		case $choose in
 
-			"Download & import remote database" )
-				source $COMMANDS_PATH/db/import.sh
-				break
-				;;
-
-			"Download remote database" )
-				source $COMMANDS_PATH/db/download.sh
+			"Database operation" )
+				source $COMMANDS_PATH/db/index.sh
 				break
 				;;
 

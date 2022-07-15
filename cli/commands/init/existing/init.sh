@@ -26,27 +26,11 @@ case $yn in
 esac
 
 echo -e "\n${FONT_BOLD}Docker setup${FONT_NORMAL}"
-SERVER_DOCUMENT_ROOT=$(get_config "Server document root (leave empty if root)")
+SERVER_DOCUMENT_ROOT=$(get_config SERVER_DOCUMENT_ROOT "Server document root (leave empty if root)")
 source $CLI_PATH/inc/docker/setup.sh
 
 # Database
-echo '';
-read -p "Do you want to download a remote database? (y/n) " yn
-case $yn in
-    [yY] )
-        source $COMMANDS_PATH/db/import.sh
-        ;;
-    [nN] )
-        echo '';
-        read -p "Do you have a database SQL dump file in the project? (y/n) " yn
-        case $yn in
-            [yY] )
-                DB_LOCAL_LOCATION=$(read_input "\nSQL dump file location?")
-                mv $DB_LOCAL_LOCATION docker/mariadb-init/dump.sql;;
-        esac;;
-    * ) echo invalid response;
-        exit 1;;
-esac
+source $COMMANDS_PATH/db/index.sh
 
 cd docker
 make
