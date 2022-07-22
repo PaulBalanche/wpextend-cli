@@ -59,6 +59,7 @@ class Docker extends ServiceBase {
     }
 
     public function up() {
+        
         shell_exec( "cd docker && make" );
     }
 

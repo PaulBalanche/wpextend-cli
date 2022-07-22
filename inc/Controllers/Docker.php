@@ -7,7 +7,8 @@ use Wpextend\Cli\Services\Docker as DockerService;
 
 class Docker extends ControllerBase {
 
-    private $dockerService;
+    private $dockerService,
+            $databaseController;
 
     public function __construct() {
         
@@ -18,7 +19,18 @@ class Docker extends ControllerBase {
         $this->checkDockerExists();
         $this->checkDockerSetup();
 
-        $this->dockerService->up();
+        $this->databaseController = new Database();
+        $this->databaseController->up();
+        do {
+            $output = shell_exec('cd docker && make quiet-logs mariadb');
+
+            if( strpos( $output, 'mysqld: ready for connections' ) !== false ) {
+                // Render::output( 'Database is up!', 'success');
+                break;
+            }
+            $x = ( isset($x) ) ? $x +1 : 0;
+            sleep(1);
+        } while( true );
     }
 
     public function checkDockerExists() {

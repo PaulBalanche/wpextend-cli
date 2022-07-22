@@ -75,6 +75,12 @@ mysql-import:
 	@[ "$(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}")" ] || ( docker-compose pull && docker-compose up -d --remove-orphans )
 	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash docker/make/mysql_import.sh $(DB_HOST) $(DB_USER) $(DB_PASSWORD) $(DB_NAME) $(SQL_FILE)
 
+database-up:
+	docker-compose up -d --remove-orphans mariadb
+
+quiet-logs:
+	@docker-compose logs $(filter-out $@,$(MAKECMDGOALS))
+
 ## logs	:	View containers logs.
 ##		You can optinally pass an argument with the service name to limit logs
 ##		logs php	: View `php` container logs.
