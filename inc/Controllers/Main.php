@@ -2,7 +2,7 @@
 
 namespace Wpextend\Cli\Controllers;
 
-use \Wpextend\Cli\Singleton\Config;
+use Wpextend\Cli\Singleton\Config;
 
 class Main {
 

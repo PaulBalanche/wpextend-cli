@@ -2,7 +2,7 @@
 
 namespace Wpextend\Cli\Controllers;
 
-use \Wpextend\Cli\Helpers\Render;
+use Wpextend\Cli\Helpers\Render;
 use Wpextend\Cli\Services\Docker as DockerService;
 
 class Docker extends ControllerBase {
@@ -15,6 +15,13 @@ class Docker extends ControllerBase {
 
         $this->dockerService = new DockerService();
 
+        $this->checkDockerExists();
+        $this->checkDockerSetup();
+
+        $this->dockerService->up();
+    }
+
+    public function checkDockerExists() {
 
         if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker' ) ) {
             $answer = readline( Render::output( '-- Your project does not have yet Docker instance. Add it? (y/n) ', 'heading', true, false ) );
@@ -25,8 +32,9 @@ class Docker extends ControllerBase {
                 Render::output( 'Sorry but for now WP Extend CLI needs its own docker instance to work...', 'error' );
             }
         }
+    }
 
-
+    public function checkDockerSetup() {
 
         if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/.env' ) ) {
             Render::output( 'Local environnement is not yet configured.' . PHP_EOL . '-- What do you want to do?', 'heading');
@@ -43,8 +51,6 @@ class Docker extends ControllerBase {
                     break;
             }
         }
-
-
     }
 
 }

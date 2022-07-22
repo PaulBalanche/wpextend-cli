@@ -2,17 +2,26 @@
 
 namespace Wpextend\Cli\Singleton;
 
+use Wpextend\Cli\Helpers\Render;
+use Dotenv\Dotenv;
+
 class Config {
     
     private static $_instance;
 
     private $scriptDir,
-            $currentWorkingDir;
+            $currentWorkingDir,
+            $config_json_filename = 'wpe.conf.json';
 
     public function __construct() {
     
         $this->scriptDir = WPE_CLI_SCRIPT_DIR;
         $this->currentWorkingDir = getcwd();
+
+        if( file_exists( $this->getCurrentWorkingDir() . '/.env' ) ) {
+            $dotenv = Dotenv::createImmutable( $this->getCurrentWorkingDir() );
+            $dotenv->load();
+        }
     }
 
     /**
@@ -35,6 +44,48 @@ class Config {
     
     public function getCurrentWorkingDir() {
         return $this->currentWorkingDir;
+    }
+
+    public function get_config_file_path() {
+        return $this->getCurrentWorkingDir() . '/' . $this->config_json_filename;
+    }
+
+    public function get_data( $id, $message = '', $default_value = null ) {
+
+        $json_data = ( file_exists( $this->get_config_file_path() ) ) ? json_decode( file_get_contents( $this->get_config_file_path() ), true ) : [];
+
+        if( isset( $json_data[$id] ) ) {
+            $value = $json_data[$id];
+        }
+        else {
+
+            if( $_ENV && is_array($_ENV) && isset($_ENV[$id]) ) {
+                Render::output( "We found $id into environment variables ($_ENV[$id])", 'info' );
+                $response = readline( Render::output( 'Do you want to use it ? (y/n)', 'heading', true, false ) );
+                if( $response == 'y' ) {
+                    $value = $_ENV[$id];
+                }
+            }
+
+            if( ! isset($value) ) {
+                $message = ( ! empty($message) ) ? $message : $id;
+                if( ! is_null($default_value) ) { $message .= " [$default_value]"; }
+                $value = readline( Render::output( $message . ' :', 'heading', true, false ) );
+                if( empty($value) && ! is_null($default_value) ) { $value = $default_value; }
+            }
+
+            $this->set_data( $id, $value );
+        }
+
+        return $value;
+    }
+
+    public function set_data( $id, $value ) {
+        
+        $json_data = ( file_exists( $this->get_config_file_path() ) ) ? json_decode( file_get_contents( $this->get_config_file_path() ), true ) : [];
+        $json_data[ $id ] = $value;
+
+        file_put_contents( $this->get_config_file_path(), json_encode($json_data, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES) );
     }
 
 }
