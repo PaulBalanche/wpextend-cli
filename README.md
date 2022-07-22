@@ -1,2 +1,2 @@
-brew tap PaulBalanche/wpextend-cli
-brew install paulbalanche/wpextend-cli/wpextend-cli
+chmod +x /usr/local/lib/wpextend-cli/index.php
+ln -s /usr/local/lib/wpextend-cli/index.php /usr/local/bin/wpe
