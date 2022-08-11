@@ -72,15 +72,19 @@ remote-mysqldump:
 	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash docker/make/mysqldump.sh $(REMOTE_DB_HOST) $(REMOTE_DB_USER) $(REMOTE_DB_PASSWORD) $(REMOTE_DB_NAME) $(SQL_FILE)
 
 mysql-import:
-	@[ "$(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}")" ] || ( docker-compose pull && docker-compose up -d --remove-orphans )
-	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash docker/make/mysql_import.sh $(DB_HOST) $(DB_USER) $(DB_PASSWORD) $(DB_NAME) $(SQL_FILE)
+	docker exec -i $(shell docker ps --filter name='^/$(PROJECT_NAME)_mariadb' --format "{{ .ID }}") sh -c 'exec mysql -uroot -p"$(DB_ROOT_PASSWORD)" $(DB_NAME)' < $(filter-out $@,$(MAKECMDGOALS))
+
+php-up:
+	@docker-compose up -d --remove-orphans php
 
 database-up:
-	docker-compose up -d --remove-orphans mariadb
+	@docker-compose up -d --remove-orphans mariadb
+
+database-healthcheck:
+	@docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_mariadb' --format "{{ .ID }}") mysqlshow -uroot -p"$(DB_ROOT_PASSWORD)" $(DB_NAME)
 
 quiet-logs:
 	@docker-compose logs $(filter-out $@,$(MAKECMDGOALS))
-
 ## logs	:	View containers logs.
 ##		You can optinally pass an argument with the service name to limit logs
 ##		logs php	: View `php` container logs.

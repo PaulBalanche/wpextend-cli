@@ -18,8 +18,21 @@ class Database extends ControllerBase {
     }
 
     public function up() {
+        Render::output( 'Database init...', 'info');
+        shell_exec( "cd docker && make database-up &>/dev/null" );
+    }
 
-        shell_exec( "cd docker && make database-up" );
+    public function healthcheck() {
+        return shell_exec( "cd docker && make -si database-healthcheck" );
+    }
+
+    public function import() {
+
+        $db_sql_file_to_import = readline( Render::output( 'Database file ? (relative to "docker" dir)', 'heading', true, false ) );
+
+        Render::output( 'Import database...' , 'info' );
+        shell_exec( "cd docker && make mysql-import $db_sql_file_to_import" );
+        Render::output( 'Done!' , 'success' );
     }
 
 }

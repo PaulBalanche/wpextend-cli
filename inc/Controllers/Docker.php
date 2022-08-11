@@ -19,18 +19,26 @@ class Docker extends ControllerBase {
         $this->checkDockerExists();
         $this->checkDockerSetup();
 
+        shell_exec( "cd docker && make php-up &>/dev/null" );
         $this->databaseController = new Database();
         $this->databaseController->up();
-        do {
-            $output = shell_exec('cd docker && make quiet-logs mariadb');
-
-            if( strpos( $output, 'mysqld: ready for connections' ) !== false ) {
-                // Render::output( 'Database is up!', 'success');
+        
+        do {    
+            $db_healthcheck = $this->databaseController->healthcheck();
+            if( $db_healthcheck && strpos( $db_healthcheck, 'Error' ) === false && strpos( $db_healthcheck, 'Unknown database' ) === false ) {
+                Render::output( 'Database\'s ready!', 'success');
                 break;
             }
-            $x = ( isset($x) ) ? $x +1 : 0;
+            $x = ( isset($x) ) ? $x + 1 : 0;
+            if( $x >= 9 ) {
+                Render::output( 'An error occurs with the database...', 'error');
+                exit;
+                break;
+            }
             sleep(1);
         } while( true );
+
+        $this->databaseController->import();
     }
 
     public function checkDockerExists() {
