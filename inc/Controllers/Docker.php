@@ -57,8 +57,11 @@ class Docker extends ControllerBase {
     }
 
     public function up () {
-
         echo shell_exec( "cd docker && make" );
+    }
+    
+    public function down () {
+        echo shell_exec( "cd docker && make down" );
     }
 
 }

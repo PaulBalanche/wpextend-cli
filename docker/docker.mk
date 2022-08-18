@@ -68,8 +68,7 @@ wp-core-install:
 	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash docker/make/wp_core_install.sh $(PROJECT_HTTP_PROTOCOL)://$(PROJECT_BASE_URL):$(PROJET_PUBLIC_PORT) "$(SITE_TITLE)" $(WP_ADMIN_USER) $(WP_ADMIN_PASSWORD) $(WP_ADMIN_EMAIL)
 
 remote-mysqldump:
-	@[ "$(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}")" ] || ( docker-compose pull && docker-compose up -d --remove-orphans )
-	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash docker/make/mysqldump.sh $(REMOTE_DB_HOST) $(REMOTE_DB_USER) $(REMOTE_DB_PASSWORD) $(REMOTE_DB_NAME) $(SQL_FILE)
+	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") sh docker/make/mysqldump.sh "$(REMOTE_DB_HOST)" "$(REMOTE_DB_USER)" "$(REMOTE_DB_PASSWORD)" "$(REMOTE_DB_NAME)" "$(SQL_FILE)"
 
 mysql-import:
 	docker exec -i $(shell docker ps --filter name='^/$(PROJECT_NAME)_mariadb' --format "{{ .ID }}") sh -c 'exec mysql -uroot -p"$(DB_ROOT_PASSWORD)" $(DB_NAME)' < $(filter-out $@,$(MAKECMDGOALS))

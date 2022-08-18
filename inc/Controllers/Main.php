@@ -2,9 +2,7 @@
 
 namespace Wpextend\Cli\Controllers;
 
-use Wpextend\Cli\Singleton\Config;
 use Wpextend\Cli\Helpers\Render;
-use Wpextend\Cli\Helpers\Terminal;
 
 class Main extends ControllerBase {
 
@@ -12,7 +10,8 @@ class Main extends ControllerBase {
 
     private $argv,
             $dockerController,
-            $databaseController;
+            $databaseController,
+            $contentController;
 
     public function __construct( $args = [] ) {
 
@@ -20,6 +19,7 @@ class Main extends ControllerBase {
 
         $this->dockerController = new Docker();
         $this->databaseController = new Database();
+        $this->contentController = new Database();
 
         if( is_array($this->argv) && count($this->argv) == 1 ) {
             $this->display_main_menu();
@@ -44,7 +44,9 @@ class Main extends ControllerBase {
         Render::output( PHP_EOL . '-- What do you want to do?' . PHP_EOL, 'heading');
         $select_options = [
             'Start',
-            'Database operations'
+            'Stop',
+            'Database operations',
+            'Download remote uploads'
         ];
         $response = shell_exec( 'sh docker/bash/select.sh "' . implode('" "', $select_options) . '"' );
         switch( $response ) {
@@ -52,10 +54,19 @@ class Main extends ControllerBase {
             case 1:
                 $this->dockerController->up();
                 break;
-
+            
             case 2:
+                $this->dockerController->down();
+                break; 
+
+            case 3:
                 $this->databaseController = new Database();
                 $this->databaseController->display_main_menu();
+                break;
+            
+            case 4:
+                $this->contentController = new Content();
+                $this->contentController->downloadUploads();
                 break;
         }
     }
