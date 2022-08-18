@@ -36,13 +36,18 @@ class Database extends ControllerBase {
 
         Render::output( PHP_EOL . '-- What do you want to do?' . PHP_EOL, 'heading');
         $select_options = [
-            'Import local file'
+            'Import local file',
+            'Dump and import remote database'
         ];
         $response = shell_exec( 'sh docker/bash/select.sh "' . implode('" "', $select_options) . '"' );
         switch( $response ) {
 
             case 1:
                 $this->databaseService->import_local_file();
+                break;
+
+            case 2:
+                $this->databaseService->import_remote_file();
                 break;
         }
     }

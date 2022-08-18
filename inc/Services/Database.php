@@ -3,6 +3,7 @@
 namespace Wpextend\Cli\Services;
 
 use Wpextend\Cli\Helpers\Render;
+use Wpextend\Cli\Helpers\Terminal;
 
 class Database extends ServiceBase {
 
@@ -19,23 +20,24 @@ class Database extends ServiceBase {
     public function import_local_file() {
 
         do{
-            $db_sql_file_to_import = readline( Render::output( PHP_EOL . 'Database file ? (full local filename, for example ~/Desktop/dump.sql)', 'heading', true, false ) );
+            $db_sql_file_to_import = Terminal::readline( 'Database file ? (full local filename, for example ~/Desktop/dump.sql)' );
             if( ! file_exists($db_sql_file_to_import) ) {
                 Render::output( "File not found..." , 'warning' );
                 continue;
             }
 
+            $sql_filename = 'dump';
+
             // Create TMP dir and copy SQL file
             if ( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/tmp' ) ) {
                 mkdir( $this->get_config()->getCurrentWorkingDir() . '/docker/tmp' );
             }
-            copy( $db_sql_file_to_import, $this->get_config()->getCurrentWorkingDir() . '/docker/tmp/dump' );
+            copy( $db_sql_file_to_import, $this->get_config()->getCurrentWorkingDir() . '/docker/tmp/' . $sql_filename );
 
-            $this->import_command();
+            $this->import_command( 'tmp/' . $sql_filename );
 
-            // Remove TMP dir and SQL file
-            unlink( $this->get_config()->getCurrentWorkingDir() . '/docker/tmp/dump' );
-            rmdir( $this->get_config()->getCurrentWorkingDir() . '/docker/tmp' );
+            // Remove SQL file
+            unlink( $this->get_config()->getCurrentWorkingDir() . '/docker/tmp/' . $sql_filename );
 
             break;
 
@@ -44,19 +46,27 @@ class Database extends ServiceBase {
 
     public function import_remote_file() {
 
-        // REMOTE_DB_HOST=$(get_config REMOTE_DB_HOST "Remote database host")
-        // REMOTE_DB_NAME=$(get_config REMOTE_DB_NAME "Remote database name")
-        // REMOTE_DB_USER=$(get_config REMOTE_DB_USER "Remote database user")
-        // REMOTE_DB_PASSWORD=$(get_secret REMOTE_DB_PASSWORD "Remote database password")
+        $remote_db_host = Terminal::readline( 'Remote database HOST: ', false );
+        $remote_db_name = Terminal::readline( 'Remote database NAME: ', false);
+        $remote_db_user = Terminal::readline( 'Remote database USER: ', false );
+        $remote_db_password = Terminal::read_password( 'Remote database PASSWORD: ', false);
 
-        // SQL_FILENAME="docker/mariadb-init/"$REMOTE_DB_NAME"_"$(date +"%m_%d_%y_%H%M%S")".sql"
+        $sql_filename = $remote_db_name . '_' . date('c');
 
-        // cd docker
-        // make remote-mysqldump REMOTE_DB_HOST=$REMOTE_DB_HOST REMOTE_DB_USER=$REMOTE_DB_USER REMOTE_DB_PASSWORD=$REMOTE_DB_PASSWORD REMOTE_DB_NAME=$REMOTE_DB_NAME SQL_FILE=$SQL_FILENAME
-        // cd ..
+        // Create TMP dir and copy SQL file
+        if ( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/tmp' ) ) {
+            mkdir( $this->get_config()->getCurrentWorkingDir() . '/docker/tmp' );
+        }
+
+        Render::output( 'Download database...' , 'info' );
+        shell_exec( "cd docker && make php-up &>/dev/null" );
+        shell_exec( "cd docker && make remote-mysqldump REMOTE_DB_HOST=$remote_db_host REMOTE_DB_USER=$remote_db_user REMOTE_DB_PASSWORD=$remote_db_password REMOTE_DB_NAME=$remote_db_name SQL_FILE=docker/tmp/$sql_filename" );
+        Render::output( 'Done!' , 'success' );
+
+        $this->import_command( 'tmp/' . $sql_filename );
     }
 
-    public function import_command() {
+    public function import_command( $filename ) {
 
         $this->up();
         
@@ -76,7 +86,7 @@ class Database extends ServiceBase {
         } while( true );
 
         Render::output( 'Import database...' , 'info' );
-        shell_exec( "cd docker && make mysql-import tmp/dump" );
+        shell_exec( "cd docker && make mysql-import $filename" );
         Render::output( 'Done!' , 'success' );
     }
 }

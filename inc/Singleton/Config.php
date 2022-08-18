@@ -3,6 +3,7 @@
 namespace Wpextend\Cli\Singleton;
 
 use Wpextend\Cli\Helpers\Render;
+use Wpextend\Cli\Helpers\Terminal;
 use Dotenv\Dotenv;
 
 class Config {
@@ -61,7 +62,7 @@ class Config {
 
             if( $_ENV && is_array($_ENV) && isset($_ENV[$id]) ) {
                 Render::output( "We found $id into environment variables ($_ENV[$id])", 'info' );
-                $response = readline( Render::output( 'Do you want to use it ? (y/n)', 'heading', true, false ) );
+                $response = Terminal::readline( 'Do you want to use it ? (y/n)' );
                 if( $response == 'y' ) {
                     $value = $_ENV[$id];
                 }
@@ -70,7 +71,7 @@ class Config {
             if( ! isset($value) ) {
                 $message = ( ! empty($message) ) ? $message : $id;
                 if( ! is_null($default_value) ) { $message .= " [$default_value]"; }
-                $value = readline( Render::output( $message . ' :', 'heading', true, false ) );
+                $value = Terminal::readline( $message . ' :' );
                 if( empty($value) && ! is_null($default_value) ) { $value = $default_value; }
             }
 

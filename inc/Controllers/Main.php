@@ -4,6 +4,7 @@ namespace Wpextend\Cli\Controllers;
 
 use Wpextend\Cli\Singleton\Config;
 use Wpextend\Cli\Helpers\Render;
+use Wpextend\Cli\Helpers\Terminal;
 
 class Main extends ControllerBase {
 
@@ -19,7 +20,7 @@ class Main extends ControllerBase {
 
         $this->dockerController = new Docker();
         $this->databaseController = new Database();
-        
+
         if( is_array($this->argv) && count($this->argv) == 1 ) {
             $this->display_main_menu();
         }
