@@ -45,7 +45,7 @@ class Docker extends ServiceBase {
 
         $env_content = file_get_contents( $this->get_config()->getCurrentWorkingDir() . '/docker/.env.example' );
         $env_content = str_replace( 'PROJECT_NAME=PROJECT_NAME', 'PROJECT_NAME=' . $project_name, $env_content );
-        $env_content = str_replace( 'PROJECT_BASE_URL=PROJECT_BASE_URL', 'PROJECT_BASE_URL=' . $wp_home, $env_content );
+        $env_content = str_replace( 'PROJECT_BASE_URL=PROJECT_BASE_URL', 'PROJECT_BASE_URL=' . $project_base_url, $env_content );
         $env_content = str_replace( 'PROJECT_HTTP_PROTOCOL=PROJECT_HTTP_PROTOCOL', 'PROJECT_HTTP_PROTOCOL=' . $http_protocol, $env_content );
         $env_content = str_replace( 'PROJET_PUBLIC_PORT=PROJET_PUBLIC_PORT', 'PROJET_PUBLIC_PORT=' . $public_port, $env_content );
         $env_content = str_replace( 'SERVER_DOCUMENT_ROOT=SERVER_DOCUMENT_ROOT', 'SERVER_DOCUMENT_ROOT=' . $server_document_root, $env_content );

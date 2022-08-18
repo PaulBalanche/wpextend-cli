@@ -7,8 +7,7 @@ use Wpextend\Cli\Services\Docker as DockerService;
 
 class Docker extends ControllerBase {
 
-    private $dockerService,
-            $databaseController;
+    private $dockerService;
 
     public function __construct() {
         
@@ -18,27 +17,6 @@ class Docker extends ControllerBase {
 
         $this->checkDockerExists();
         $this->checkDockerSetup();
-
-        shell_exec( "cd docker && make php-up &>/dev/null" );
-        $this->databaseController = new Database();
-        $this->databaseController->up();
-        
-        do {    
-            $db_healthcheck = $this->databaseController->healthcheck();
-            if( $db_healthcheck && strpos( $db_healthcheck, 'Error' ) === false && strpos( $db_healthcheck, 'Unknown database' ) === false ) {
-                Render::output( 'Database\'s ready!', 'success');
-                break;
-            }
-            $x = ( isset($x) ) ? $x + 1 : 0;
-            if( $x >= 9 ) {
-                Render::output( 'An error occurs with the database...', 'error');
-                exit;
-                break;
-            }
-            sleep(1);
-        } while( true );
-
-        $this->databaseController->import();
     }
 
     public function checkDockerExists() {
@@ -71,6 +49,11 @@ class Docker extends ControllerBase {
                     break;
             }
         }
+    }
+
+    public function up () {
+
+        echo shell_exec( "cd docker && make" );
     }
 
 }

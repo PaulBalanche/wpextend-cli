@@ -17,22 +17,34 @@ class Database extends ControllerBase {
 
     }
 
-    public function up() {
-        Render::output( 'Database init...', 'info');
-        shell_exec( "cd docker && make database-up &>/dev/null" );
+    public function display_main_menu() {
+
+        Render::output( PHP_EOL . '-- What do you want to do?' . PHP_EOL, 'heading');
+        $select_options = [
+            'Import database'
+        ];
+        $response = shell_exec( 'sh docker/bash/select.sh "' . implode('" "', $select_options) . '"' );
+        switch( $response ) {
+
+            case 1:
+                $this->display_import_menu();                
+                break;
+        }
     }
 
-    public function healthcheck() {
-        return shell_exec( "cd docker && make -si database-healthcheck" );
-    }
+    public function display_import_menu() {
 
-    public function import() {
+        Render::output( PHP_EOL . '-- What do you want to do?' . PHP_EOL, 'heading');
+        $select_options = [
+            'Import local file'
+        ];
+        $response = shell_exec( 'sh docker/bash/select.sh "' . implode('" "', $select_options) . '"' );
+        switch( $response ) {
 
-        $db_sql_file_to_import = readline( Render::output( 'Database file ? (relative to "docker" dir)', 'heading', true, false ) );
-
-        Render::output( 'Import database...' , 'info' );
-        shell_exec( "cd docker && make mysql-import $db_sql_file_to_import" );
-        Render::output( 'Done!' , 'success' );
+            case 1:
+                $this->databaseService->import_local_file();
+                break;
+        }
     }
 
 }
