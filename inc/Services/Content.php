@@ -22,12 +22,10 @@ class Content extends ServiceBase {
                 continue;
             }
 
-            Render::output( 'Download uploads...' , 'info' );
-            echo shell_exec( "rsync -avz $remote_ssh_user@$remote_ssh_host:$remote_source_path/ $local_target_path" );
+            system( "rsync -avz $remote_ssh_user@$remote_ssh_host:$remote_source_path/ $local_target_path" );
             Render::output( 'Done!' , 'success' );
 
             break;
-
         } while(true);
 
     }

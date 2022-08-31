@@ -27,7 +27,7 @@ class Database extends ControllerBase {
         switch( $response ) {
 
             case 1:
-                $this->display_import_menu();                
+                $this->display_import_menu();
                 break;
         }
     }
