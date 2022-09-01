@@ -7,12 +7,6 @@ use Wpextend\Cli\Helpers\Terminal;
 
 class Git extends ControllerBase {
 
-
-    public function __construct() {
-        
-        parent::__construct();
-    }
-
     public function pull_from_bitbucket() {
 
         $remote_ssh_host = Terminal::readline( 'Bitbucket SSH URL ?' );

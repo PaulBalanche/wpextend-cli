@@ -3,13 +3,10 @@
 namespace Wpextend\Cli\Controllers;
 
 use Wpextend\Cli\Helpers\Render;
-use Wpextend\Cli\Helpers\Terminal;
 
-class Main extends ControllerBase {
+class Main {
 
-    private static $_instance;
-
-    private $argv;
+    private static $_instance = null;
 
     public $initController,
         $dockerController,
@@ -17,23 +14,13 @@ class Main extends ControllerBase {
         $contentController,
         $gitController;
 
-    public function __construct( $args = [] ) {
-
-        parent::__construct();
-
-        $this->argv = !empty($args) ? $args : $GLOBALS['argv'];
-
-        $this->checkDockerExists();
+    private function __construct() {
 
         $this->initController = new Init();
         $this->dockerController = new Docker();
         $this->databaseController = new Database();
         $this->contentController = new Content();
         $this->gitController = new Git();
-
-        if( is_array($this->argv) && count($this->argv) == 1 ) {
-            $this->display_main_menu();
-        }
     }
 
     /**
@@ -49,34 +36,15 @@ class Main extends ControllerBase {
         return self::$_instance;
     }
 
-    public function checkDockerExists() {
 
-        if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker' ) ) {
-            $answer = Terminal::readline( '-- Your project does not have yet Docker instance. Add it? (y/n)' );
-            if( strtolower($answer) == 'y' ) {
-                $this->downloadDockerFiles();
-            }
-            else {
-                Render::output( 'Sorry but for now WP Extend CLI needs its own docker instance to work...', 'error' );
-            }
-        }
-    }
+    public function init() {
 
-    public function downloadDockerFiles() {
-        
-        Render::output( 'Copying docker files...', 'info' );
+        $this->dockerController->checkDockerExists();
+        $this->dockerController->checkDockerSetup();
 
-        $src = $this->get_config()->getScriptDir() . '/docker';
-        $dest = $this->get_config()->getCurrentWorkingDir() . '/docker';
-        
-        shell_exec( "cp -r $src $dest" );
+        $this->initController->checkProject();
 
-        if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker' ) ) {
-            Render::output( 'Sorry an error occurs while copying files...' , 'error' );
-            exit;
-        }
-        
-        Render::output( 'Files successfully copied.' , 'success' );
+        $this->display_main_menu();
     }
 
     public function display_main_menu() {

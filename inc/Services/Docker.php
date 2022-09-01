@@ -6,6 +6,23 @@ use Wpextend\Cli\Helpers\Render;
 
 class Docker extends ServiceBase {
 
+    public function downloadDockerFiles() {
+        
+        Render::output( 'Copying docker files...', 'info' );
+
+        $src = $this->get_config()->getScriptDir() . '/docker';
+        $dest = $this->get_config()->getCurrentWorkingDir() . '/docker';
+        
+        shell_exec( "cp -r $src $dest" );
+
+        if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker' ) ) {
+            Render::output( 'Sorry an error occurs while copying files...' , 'error' );
+            exit;
+        }
+        
+        Render::output( 'Files successfully copied.' , 'success' );
+    }
+    
     public function setup() {
 
         $project_name           = basename( $this->get_config()->getCurrentWorkingDir() );

@@ -6,10 +6,7 @@ use Wpextend\Cli\Helpers\Render;
 
 class Init extends ControllerBase {
 
-
-    public function __construct() {
-        
-        parent::__construct();
+    public function checkProject() {
 
         $files_dir = scandir( $this->get_config()->getCurrentWorkingDir() );
         if( count($files_dir) == 3 && in_array('.', $files_dir) && in_array('..', $files_dir) && in_array('docker', $files_dir) ) {

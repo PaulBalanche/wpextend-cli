@@ -14,7 +14,7 @@ class Config {
             $currentWorkingDir,
             $config_json_filename = 'wpe.conf.json';
 
-    public function __construct() {
+    private function __construct() {
     
         $this->scriptDir = WPE_CLI_SCRIPT_DIR;
         $this->currentWorkingDir = getcwd();
