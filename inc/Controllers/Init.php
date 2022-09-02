@@ -6,23 +6,76 @@ use Wpextend\Cli\Helpers\Render;
 
 class Init extends ControllerBase {
 
-    public function checkProject() {
+    public function __construct() {
+        
+        parent::__construct();
 
-        $files_dir = scandir( $this->get_config()->getCurrentWorkingDir() );
-        if( count($files_dir) == 3 && in_array('.', $files_dir) && in_array('..', $files_dir) && in_array('docker', $files_dir) ) {
-            $this->display_main_menu();
+        Render::output( PHP_EOL . '-------------------- WPExtend CLI - Welcome 👋 --------------------' . PHP_EOL . PHP_EOL, 'heading', false);
+
+        $this->check_wpe_config();
+        $this->check_empty_project();
+        $this->load_boilerplate();
+    }
+
+    public function check_wpe_config() {
+
+        if( ! file_exists( $this->get_config()->get_config_file_path() ) ) {
+            $this->get_config()->set_data( 'created_at', date('c') );
         }
     }
 
-    public function display_main_menu() {
+    public function check_empty_project() {
 
-        Render::output( "Empty project" , 'warning' );
+        $files_dir = scandir( $this->get_config()->getCurrentWorkingDir() );
+        if(
+            ( count($files_dir) == 2 && in_array('.', $files_dir) && in_array('..', $files_dir) ) ||
+            ( count($files_dir) == 3 && in_array('.', $files_dir) && in_array('..', $files_dir) && in_array('docker', $files_dir) )
+        ) {
+            $this->display_menu_empty_project();
+        }
+    }
+
+    public function load_boilerplate() {
+
+        $boilerplate = $this->get_config()->get( 'boilerplate' );
+        if( is_null($boilerplate) || ! in_array($boilerplate, Boilerplate::$type_available) ) {
+
+            do{
+
+                Render::output( '-- What boilerplate is this project using? ' . PHP_EOL, 'heading');
+                $select_options = [
+                    'Bedrock',
+                    'Vanilla'
+                ];
+                $response = Main::getInstance()->shellController->select($select_options);
+                switch( $response ) {
+    
+                    case 1:
+                        $boilerplate = 'Bedrock';
+                        break;
+                    
+                    case 2:
+                        $boilerplate = 'Vanilla';
+                        break; 
+                }
+    
+            } while( is_null($boilerplate) || ! in_array($boilerplate, Boilerplate::$type_available) );
+
+            $this->get_config()->set_data( 'boilerplate', $boilerplate );
+        }
+
+        Main::getInstance()->boilerplateController = new Boilerplate( $boilerplate );
+    }
+
+    public function display_menu_empty_project() {
+        
+        Render::output( PHP_EOL . 'Empty project...' , 'info', false);
         Render::output( PHP_EOL . '-- What do you want to do?' . PHP_EOL, 'heading');
         $select_options = [
-            'Run existing project (Bitbucket)',
-            'Init Bedrock (new WP from scratch)',
+            'Pull existing project (Bitbucket)',
+            'Create a new Wordpress installation (feature in development...)',
         ];
-        $response = shell_exec( 'sh docker/bash/select.sh "' . implode('" "', $select_options) . '"' );
+        $response = Main::getInstance()->shellController->select($select_options);
         switch( $response ) {
 
             case 1:
@@ -31,6 +84,8 @@ class Init extends ControllerBase {
                 break;
 
             case 2:
+                Render::output( PHP_EOL . 'Feature in development... Please use existing project.' , 'error' );
+                exit;
                 // shell_exec( 'sh docker/new/init.sh' );
                 break;
         }

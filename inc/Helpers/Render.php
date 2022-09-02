@@ -12,7 +12,7 @@ class Render {
      * @param string $color
      * @param bool   $newLine
      */
-    static function output($text, $color = null, $newLine = true, $display = true ) {
+    static function output( $text, $color = null, $newLine = true, $display = true ) {
         static $styles = [
             'success' => "\033[0;32m%s\033[0m",
             'error' => "\033[31;31m%s\033[0m",

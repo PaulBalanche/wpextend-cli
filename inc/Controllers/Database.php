@@ -3,6 +3,7 @@
 namespace Wpextend\Cli\Controllers;
 
 use Wpextend\Cli\Helpers\Render;
+use Wpextend\Cli\Helpers\Terminal;
 use Wpextend\Cli\Services\Database as DatabaseService;
 
 class Database extends ControllerBase {
@@ -14,7 +15,17 @@ class Database extends ControllerBase {
         parent::__construct();
 
         $this->databaseService = new DatabaseService();
+    }
 
+    public function check_database_exists() {
+
+        if( file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/' ) && ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/mariadb' ) ) {
+
+            $answer = Terminal::readline( '-- Missing local database. Do you want to add it? (y/n) ', false );
+            if( strtolower($answer) == 'y' ) {
+                $this->display_import_menu();
+            }
+        }
     }
 
     public function display_main_menu() {
@@ -23,7 +34,7 @@ class Database extends ControllerBase {
         $select_options = [
             'Import database'
         ];
-        $response = shell_exec( 'sh docker/bash/select.sh "' . implode('" "', $select_options) . '"' );
+        $response = Main::getInstance()->shellController->select($select_options);
         switch( $response ) {
 
             case 1:
@@ -39,7 +50,7 @@ class Database extends ControllerBase {
             'Import local file',
             'Dump and import remote database'
         ];
-        $response = shell_exec( 'sh docker/bash/select.sh "' . implode('" "', $select_options) . '"' );
+        $response = Main::getInstance()->shellController->select($select_options);
         switch( $response ) {
 
             case 1:

@@ -53,16 +53,16 @@ class Config {
 
     public function get_data( $id, $message = '', $default_value = null ) {
 
-        $json_data = ( file_exists( $this->get_config_file_path() ) ) ? json_decode( file_get_contents( $this->get_config_file_path() ), true ) : [];
+        $value = $this->get( $id );
 
-        if( isset( $json_data[$id] ) ) {
-            $value = $json_data[$id];
+        if( ! is_null($value) ) {
+            Render::output( $id . ' get from WPE config file', 'info' );
         }
         else {
 
             if( $_ENV && is_array($_ENV) && isset($_ENV[$id]) ) {
                 Render::output( "We found $id into environment variables ($_ENV[$id])", 'info' );
-                $response = Terminal::readline( 'Do you want to use it ? (y/n)' );
+                $response = Terminal::readline( 'Do you want to use it ? (y/n) ', false );
                 if( $response == 'y' ) {
                     $value = $_ENV[$id];
                 }
@@ -71,7 +71,7 @@ class Config {
             if( ! isset($value) ) {
                 $message = ( ! empty($message) ) ? $message : $id;
                 if( ! is_null($default_value) ) { $message .= " [$default_value]"; }
-                $value = Terminal::readline( $message . ' :' );
+                $value = Terminal::readline( $message . ' : ', false );
                 if( empty($value) && ! is_null($default_value) ) { $value = $default_value; }
             }
 
@@ -79,6 +79,12 @@ class Config {
         }
 
         return $value;
+    }
+
+    public function get( $id ) {
+        
+        $json_data = ( file_exists( $this->get_config_file_path() ) ) ? json_decode( file_get_contents( $this->get_config_file_path() ), true ) : [];
+        return ( isset( $json_data[$id] ) ) ? $json_data[$id] : null;
     }
 
     public function set_data( $id, $value ) {

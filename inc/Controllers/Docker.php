@@ -20,12 +20,13 @@ class Docker extends ControllerBase {
     public function checkDockerExists() {
 
         if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker' ) ) {
-            $answer = Terminal::readline( '-- Your project does not have yet Docker instance. Add it? (y/n)' );
+            $answer = Terminal::readline( '-- Your project does not have yet Docker instance. Add it? (y/n) ', false );
             if( strtolower($answer) == 'y' ) {
                 $this->dockerService->downloadDockerFiles();
             }
             else {
-                Render::output( 'Sorry but for now WP Extend CLI needs its own docker instance to work...', 'error' );
+                Render::output( PHP_EOL. 'Sorry but for now WP Extend CLI needs its own docker instance to work...' . PHP_EOL, 'error' );
+                exit;
             }
         }
     }
@@ -34,43 +35,16 @@ class Docker extends ControllerBase {
 
         if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/.env' ) ) {
 
-            Render::output( 'Local environnement is not yet configured.', 'info');
+            Render::output( '-- Local environnement is not yet configured.', 'heading');
             $this->dockerService->setup();
-        }
-    }
-
-    public function check_database_exists() {
-
-        if( file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/' ) && ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/mariadb' ) ) {
-
-            $answer = Terminal::readline( '-- Missing local database. Do you want to add it? (y/n)' );
-            if( strtolower($answer) == 'y' ) {
-                Main::getInstance()->databaseController->display_import_menu();
-            }
-        }
-    }
-
-    public function check_composer() {
-
-         // Check if composer.json exist, but not vendor yet...
-         if( file_exists( $this->get_config()->getCurrentWorkingDir() . '/composer.lock' ) && ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/vendor' ) ) {
-
-            Render::output( PHP_EOL . 'We found Composer file without vendor directory.' . PHP_EOL . 'Composer install in progress...' . PHP_EOL, 'info');
-
-            shell_exec( "cd docker && make php-up &>/dev/null" );
-            shell_exec( "cd docker && make composer-install" );
-
-            Render::output( PHP_EOL . 'Composer dependencies are ready!', 'success');
         }
     }
 
     public function up () {
 
-        $this->check_database_exists();
-        $this->check_composer();
-
-        Render::output( PHP_EOL . 'Docker starting...' . PHP_EOL, 'info');
+        Render::output( PHP_EOL . 'Starting docker...' . PHP_EOL, 'info' );
         echo shell_exec( "cd docker && make" );
+        Render::output( PHP_EOL . 'Your website is up and running at:' . PHP_EOL . PHP_EOL . '  👉 ' . $this->get_config()->get_data( 'WP_HOME' ) . PHP_EOL, 'success' );
     }
     
     public function down () {

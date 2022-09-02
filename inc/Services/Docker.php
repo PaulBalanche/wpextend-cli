@@ -8,7 +8,7 @@ class Docker extends ServiceBase {
 
     public function downloadDockerFiles() {
         
-        Render::output( 'Copying docker files...', 'info' );
+        Render::output( PHP_EOL. 'Copying docker files...', 'info' );
 
         $src = $this->get_config()->getScriptDir() . '/docker';
         $dest = $this->get_config()->getCurrentWorkingDir() . '/docker';
@@ -20,7 +20,7 @@ class Docker extends ServiceBase {
             exit;
         }
         
-        Render::output( 'Files successfully copied.' , 'success' );
+        Render::output( 'Files successfully copied 🎉' . PHP_EOL, 'success' );
     }
     
     public function setup() {
@@ -56,6 +56,8 @@ class Docker extends ServiceBase {
         $env_content = str_replace( 'DB_HOST=DB_HOST', 'DB_HOST=' . $db_host, $env_content );
         
         file_put_contents( $this->get_config()->getCurrentWorkingDir() . '/docker/.env', $env_content );
+
+        Render::output( 'Docker\'s ready 🎉' . PHP_EOL, 'success' );
     }
 
     public function up() {
