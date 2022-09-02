@@ -20,7 +20,7 @@ class Config {
         $this->currentWorkingDir = getcwd();
 
         if( file_exists( $this->getCurrentWorkingDir() . '/.env' ) ) {
-            $dotenv = Dotenv::createImmutable( $this->getCurrentWorkingDir() );
+            $dotenv = Dotenv::createImmutable( [ $this->getCurrentWorkingDir(), $this->getCurrentWorkingDir() . '/docker' ] );
             $dotenv->load();
         }
     }

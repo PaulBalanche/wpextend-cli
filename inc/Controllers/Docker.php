@@ -44,7 +44,6 @@ class Docker extends ControllerBase {
 
         Render::output( PHP_EOL . 'Starting docker...' . PHP_EOL, 'info' );
         echo shell_exec( "cd docker && make" );
-        Render::output( PHP_EOL . 'Your website is up and running at:' . PHP_EOL . PHP_EOL . '  👉 ' . $this->get_config()->get_data( 'WP_HOME' ) . PHP_EOL, 'success' );
     }
     
     public function down () {

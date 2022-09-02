@@ -16,8 +16,10 @@ class Bedrock extends ControllerBase {
     public function check_env() {
 
         if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/.env' ) ) {
-            Render::output( PHP_EOL . $this->render_prefix() . ' .env file\'s missing.' . PHP_EOL, 'warning' );
-            die;
+            $answer = Terminal::readline( '-- ' . $this->render_prefix() . ' .env file\'s missing. Continue anyway? (y/n) ', false );
+            if( strtolower($answer) != 'y' ) {
+                exit;
+            }
         }
     }
     

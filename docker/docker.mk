@@ -15,6 +15,7 @@ up:
 	@echo "Starting up containers for $(PROJECT_NAME)..."
 	docker-compose pull
 	docker-compose up -d --remove-orphans
+	@echo "\n\n\033[1;32m	Your website is up and running at 👉 $(PROJECT_HTTP_PROTOCOL)://$(PROJECT_BASE_URL):$(PROJET_PUBLIC_PORT)\033[0m\n"
 
 up-quiet:
 	docker-compose pull
