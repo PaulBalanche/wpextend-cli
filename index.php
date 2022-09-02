@@ -2,7 +2,7 @@
 <?php
 define( 'WPE_CLI_SCRIPT_DIR', dirname(__FILE__) );
 
-if( ! file_exists('vendor') ) {
+if( ! file_exists( WPE_CLI_SCRIPT_DIR . '/vendor' ) ) {
     shell_exec( "composer install --working-dir=" . WPE_CLI_SCRIPT_DIR );
 }
 require WPE_CLI_SCRIPT_DIR . '/vendor/autoload.php';
