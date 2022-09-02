@@ -1,0 +1,23 @@
+{
+    "name": "wpextend/wpe-cli",
+    "version": "1.0.0",
+    "type": "library",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Paul Balanche",
+            "email": "paul.balanche@gmail.com",
+            "homepage": "https://github.com/PaulBalanche/",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "vlucas/phpdotenv": "^5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Wpextend\\Cli\\": "inc/"
+        }
+    }
+}

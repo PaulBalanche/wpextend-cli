@@ -15,7 +15,7 @@ up:
 	@echo "Starting up containers for $(PROJECT_NAME)..."
 	docker-compose pull
 	docker-compose up -d --remove-orphans
-	@echo "\n\n\033[1;32m	Your website is up and running at 👉 $(PROJECT_HTTP_PROTOCOL)://$(PROJECT_BASE_URL):$(PROJET_PUBLIC_PORT)\033[0m\n"
+	@echo "\n--------------- 🎉 CONGRATS! ---------------\n\nYour website should now be up and running at:\n\n👉 $(PROJECT_HTTP_PROTOCOL)://$(PROJECT_BASE_URL):$(PROJET_PUBLIC_PORT)\n\n---------------------------------------------\n"
 
 up-quiet:
 	docker-compose pull
@@ -68,22 +68,13 @@ wp-core-install:
 	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash docker/make/wp_core_install.sh $(PROJECT_HTTP_PROTOCOL)://$(PROJECT_BASE_URL):$(PROJET_PUBLIC_PORT) "$(SITE_TITLE)" $(WP_ADMIN_USER) $(WP_ADMIN_PASSWORD) $(WP_ADMIN_EMAIL)
 
 remote-mysqldump:
-	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") sh docker/make/mysqldump.sh "$(REMOTE_DB_HOST)" "$(REMOTE_DB_USER)" "$(REMOTE_DB_PASSWORD)" "$(REMOTE_DB_NAME)" "$(SQL_FILE)"
+	@[ "$(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}")" ] || ( docker-compose pull && docker-compose up -d --remove-orphans )
+	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash docker/make/mysqldump.sh $(REMOTE_DB_HOST) $(REMOTE_DB_USER) $(REMOTE_DB_PASSWORD) $(REMOTE_DB_NAME) $(SQL_FILE)
 
 mysql-import:
-	docker exec -i $(shell docker ps --filter name='^/$(PROJECT_NAME)_mariadb' --format "{{ .ID }}") sh -c 'exec mysql -uroot -p"$(DB_ROOT_PASSWORD)" $(DB_NAME)' < $(filter-out $@,$(MAKECMDGOALS))
+	@[ "$(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}")" ] || ( docker-compose pull && docker-compose up -d --remove-orphans )
+	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") bash docker/make/mysql_import.sh $(DB_HOST) $(DB_USER) $(DB_PASSWORD) $(DB_NAME) $(SQL_FILE)
 
-php-up:
-	@docker-compose up -d --remove-orphans php
-
-database-up:
-	@docker-compose up -d --remove-orphans mariadb
-
-database-healthcheck:
-	@docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_mariadb' --format "{{ .ID }}") mysqlshow -uroot -p"$(DB_ROOT_PASSWORD)" $(DB_NAME)
-
-quiet-logs:
-	@docker-compose logs $(filter-out $@,$(MAKECMDGOALS))
 ## logs	:	View containers logs.
 ##		You can optinally pass an argument with the service name to limit logs
 ##		logs php	: View `php` container logs.
