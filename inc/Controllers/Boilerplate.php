@@ -16,8 +16,12 @@ class Boilerplate extends ControllerBase {
         $this->typeInstance = new $fully_qualified_class_name;
     }
 
+    public function getTypeInstance() {
+        return $this->typeInstance;
+    }
+
     public function check_before_run() {
 
-        $this->typeInstance->check_before_run();
+        $this->getTypeInstance()->check_before_run();
     }
 }

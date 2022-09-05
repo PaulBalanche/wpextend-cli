@@ -6,6 +6,9 @@ use Wpextend\Cli\Helpers\Terminal;
 
 class Bedrock extends ControllerBase {
 
+    public $name = 'Bedrock',
+        $preferedServerDocumentRoot = 'web';
+
     public function check_before_run() {
 
         $this->check_env();

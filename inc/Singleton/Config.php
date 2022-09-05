@@ -61,12 +61,12 @@ class Config {
         $value = $this->get( $id );
 
         if( ! is_null($value) ) {
-            Render::output( $id . ' get from WPE config file', 'info' );
+            Render::output( $id . ' get from WPE config file', 'normal' );
         }
         else {
 
             if( $_ENV && is_array($_ENV) && isset($_ENV[$id]) ) {
-                Render::output( "We found $id into environment variables ($_ENV[$id])", 'info' );
+                Render::output( PHP_EOL . "We found $id into environment variables ($_ENV[$id])", 'normal', false );
                 $response = Terminal::readline( 'Do you want to use it ? (y/n) ', false );
                 if( $response == 'y' ) {
                     $value = $_ENV[$id];

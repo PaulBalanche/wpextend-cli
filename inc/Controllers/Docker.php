@@ -35,7 +35,7 @@ class Docker extends ControllerBase {
 
         if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '/.env' ) ) {
 
-            Render::output( '-- Local environnement is not yet configured.', 'heading');
+            Render::output( '-- Local environnement is not yet configured.' . PHP_EOL, 'heading');
             $this->dockerService->setup();
         }
     }

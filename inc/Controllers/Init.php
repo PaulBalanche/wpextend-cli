@@ -42,10 +42,10 @@ class Init extends ControllerBase {
 
             do{
 
-                Render::output( '-- What boilerplate is this project using? ' . PHP_EOL, 'heading');
+                Render::output( '-- What\'s the structure of the project? ' . PHP_EOL, 'heading');
                 $select_options = [
-                    'Bedrock',
-                    'Vanilla Wordpress'
+                    'Bedrock | WordPress Boilerplate',
+                    'Basic Wordpress'
                 ];
                 $response = Main::getInstance()->shellController->select($select_options);
                 switch( $response ) {

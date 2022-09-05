@@ -2,7 +2,6 @@
 
 namespace Wpextend\Cli\Controllers;
 
-use Wpextend\Cli\Helpers\Render;
 use Wpextend\Cli\Services\Content as contentService;
 
 class Content extends ControllerBase {

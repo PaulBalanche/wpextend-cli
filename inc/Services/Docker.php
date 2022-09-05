@@ -3,6 +3,8 @@
 namespace Wpextend\Cli\Services;
 
 use Wpextend\Cli\Helpers\Render;
+use Wpextend\Cli\Helpers\Terminal;
+use Wpextend\Cli\Controllers\Main;
 use ZipArchive;
 
 class Docker extends ServiceBase {
@@ -60,10 +62,20 @@ class Docker extends ServiceBase {
         $db_host                = $this->get_config()->get_data( 'DB_HOST', 'DB host', 'mariadb');
         $db_prefix              = $this->get_config()->get_data( 'DB_PREFIX', 'DB prefix', 'wp_');
 
-        $server_document_root   = $this->get_config()->get_data( 'server_document_root', 'Server document root (leave empty if root)', );
+        if( property_exists( Main::getInstance()->boilerplateController->getTypeInstance(), 'preferedServerDocumentRoot' ) ) {
+            
+            Render::output( PHP_EOL . 'You\'re using ' . sprintf("\033[1;33m%s\033[0;33m", Main::getInstance()->boilerplateController->getTypeInstance()->name) . ', and the default document root is ' . sprintf("\033[1;33m%s\033[0;33m", Main::getInstance()->boilerplateController->getTypeInstance()->preferedServerDocumentRoot) . '.', 'info', false );
+            $answer = Terminal::readline( '-- Do you want to use this default document root? (y/n) ', false );
+            if( strtolower($answer) == 'y' ) {
+                $server_document_root = Main::getInstance()->boilerplateController->getTypeInstance()->preferedServerDocumentRoot;
+            }
+            else {
+                $server_document_root  = $this->get_config()->get_data( 'server_document_root', 'Server document root (leave empty if root)', );
+            }
+        }
         if( ! empty($server_document_root) ) { $server_document_root = '/' . trim( $server_document_root, '/'); }
 
-        $env_content = file_get_contents( $this->get_config()->getCurrentWorkingDir() . '/docker/.env.example' );
+        $env_content = file_get_contents( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '/.env.example' );
         $env_content = str_replace( 'PROJECT_NAME=PROJECT_NAME', 'PROJECT_NAME=' . $project_name, $env_content );
         $env_content = str_replace( 'PROJECT_BASE_URL=PROJECT_BASE_URL', 'PROJECT_BASE_URL=' . $project_base_url, $env_content );
         $env_content = str_replace( 'PROJECT_HTTP_PROTOCOL=PROJECT_HTTP_PROTOCOL', 'PROJECT_HTTP_PROTOCOL=' . $http_protocol, $env_content );
@@ -77,7 +89,7 @@ class Docker extends ServiceBase {
         
         file_put_contents( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '/.env', $env_content );
 
-        Render::output( 'Docker\'s ready 🎉' . PHP_EOL, 'success' );
+        Render::output( PHP_EOL . 'Docker\'s ready 🎉' . PHP_EOL, 'success' );
     }
 
     public function up() {

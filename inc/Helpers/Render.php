@@ -19,6 +19,7 @@ class Render {
             'info' => "\033[33m%s\033[39m",
             'warning' => "\033[33m%s\033[39m",
             'heading' => "\033[1;33m%s\033[22;39m",
+            'normal' => "%s"
         ];
 
         $format = '%s';
@@ -38,5 +39,4 @@ class Render {
             return sprintf($format, $text);
         }
     }
-
 }
