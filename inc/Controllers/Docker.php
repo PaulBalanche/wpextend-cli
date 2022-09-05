@@ -19,7 +19,7 @@ class Docker extends ControllerBase {
 
     public function checkDockerExists() {
 
-        if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker' ) ) {
+        if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() ) ) {
             $answer = Terminal::readline( '-- Your project does not have yet Docker instance. Add it? (y/n) ', false );
             if( strtolower($answer) == 'y' ) {
                 $this->dockerService->downloadDockerFiles();
@@ -33,7 +33,7 @@ class Docker extends ControllerBase {
 
     public function checkDockerSetup() {
 
-        if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/.env' ) ) {
+        if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '/.env' ) ) {
 
             Render::output( '-- Local environnement is not yet configured.', 'heading');
             $this->dockerService->setup();
@@ -43,11 +43,11 @@ class Docker extends ControllerBase {
     public function up () {
 
         Render::output( PHP_EOL . 'Starting docker...' . PHP_EOL, 'info' );
-        echo shell_exec( "cd docker && make" );
+        echo shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make" );
     }
     
     public function down () {
-        echo shell_exec( "cd docker && make down" );
+        echo shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make down" );
     }
 
 }

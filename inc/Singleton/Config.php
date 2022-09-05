@@ -12,7 +12,8 @@ class Config {
 
     private $scriptDir,
             $currentWorkingDir,
-            $config_json_filename = 'wpe.conf.json';
+            $config_json_filename = 'wpe.conf.json',
+            $docker_dirname = 'wpe-docker';
 
     private function __construct() {
     
@@ -20,7 +21,7 @@ class Config {
         $this->currentWorkingDir = getcwd();
 
         if( file_exists( $this->getCurrentWorkingDir() . '/.env' ) ) {
-            $dotenv = Dotenv::createImmutable( [ $this->getCurrentWorkingDir(), $this->getCurrentWorkingDir() . '/docker' ] );
+            $dotenv = Dotenv::createImmutable( [ $this->getCurrentWorkingDir(), $this->getCurrentWorkingDir() . '/' . $this->getDockerDir() ] );
             $dotenv->load();
         }
     }
@@ -45,6 +46,10 @@ class Config {
     
     public function getCurrentWorkingDir() {
         return $this->currentWorkingDir;
+    }
+
+    public function getDockerDir() {
+        return $this->docker_dirname;
     }
 
     public function get_config_file_path() {

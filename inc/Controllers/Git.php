@@ -14,7 +14,7 @@ class Git extends ControllerBase {
 
         $files_git_clone = scandir( $this->get_config()->getCurrentWorkingDir() . '/git_clone' );
         foreach( $files_git_clone as $file ) {
-            if( ! in_array( $file, [ '.', '..', 'docker' ] ) ) {
+            if( ! in_array( $file, [ '.', '..', $this->get_config()->getDockerDir() ] ) ) {
                 shell_exec( 'mv git_clone/' . $file . ' ./' . $file );
             }
             

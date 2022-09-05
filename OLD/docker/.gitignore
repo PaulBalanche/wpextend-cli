@@ -1,5 +1,0 @@
-.idea/
-mutagen.yml.lock
-.vscode
-
-!mariadb-init/.gitkeep

@@ -29,7 +29,7 @@ class Init extends ControllerBase {
         $files_dir = scandir( $this->get_config()->getCurrentWorkingDir() );
         if(
             ( count($files_dir) == 2 && in_array('.', $files_dir) && in_array('..', $files_dir) ) ||
-            ( count($files_dir) == 3 && in_array('.', $files_dir) && in_array('..', $files_dir) && in_array('docker', $files_dir) )
+            ( count($files_dir) == 3 && in_array('.', $files_dir) && in_array('..', $files_dir) && in_array($this->get_config()->getDockerDir(), $files_dir) )
         ) {
             $this->display_menu_empty_project();
         }
@@ -86,7 +86,7 @@ class Init extends ControllerBase {
             case 2:
                 Render::output( PHP_EOL . 'Feature in development... Please use existing project.' , 'error' );
                 exit;
-                // shell_exec( 'sh docker/new/init.sh' );
+                // shell_exec( 'sh ' . $this->get_config()->getDockerDir() . '/new/init.sh' );
                 break;
         }
     }

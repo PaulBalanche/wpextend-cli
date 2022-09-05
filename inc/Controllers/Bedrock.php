@@ -2,7 +2,6 @@
 
 namespace Wpextend\Cli\Controllers;
 
-use Wpextend\Cli\Helpers\Render;
 use Wpextend\Cli\Helpers\Terminal;
 
 class Bedrock extends ControllerBase {
@@ -30,8 +29,8 @@ class Bedrock extends ControllerBase {
            $answer = Terminal::readline( '-- ' . $this->render_prefix() . ' Vendor directory\'s missing. Do you want load Composer dependencies? (y/n) ', false );
            if( strtolower($answer) == 'y' ) {
 
-               shell_exec( "cd docker && make php-up &>/dev/null" );
-               shell_exec( "cd docker && make composer-install" );
+               shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make php-up &>/dev/null" );
+               shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make composer-install" );
            }
        }
     }

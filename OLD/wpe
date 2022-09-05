@@ -1,3 +1,0 @@
-#!/bin/bash
-WPE_ROOT_PATH=$(dirname "$0")
-source $WPE_ROOT_PATH/cli/init.sh

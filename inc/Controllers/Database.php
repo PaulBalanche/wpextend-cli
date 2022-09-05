@@ -19,7 +19,7 @@ class Database extends ControllerBase {
 
     public function check_database_exists() {
 
-        if( file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/' ) && ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/mariadb' ) ) {
+        if( file_exists( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() ) && ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '/mariadb' ) ) {
 
             $answer = Terminal::readline( '-- Missing local database. Do you want to add it? (y/n) ', false );
             if( strtolower($answer) == 'y' ) {

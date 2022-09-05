@@ -9,12 +9,12 @@ class Database extends ServiceBase {
 
     public function up() {
         Render::output( PHP_EOL . 'PHP & Database init...', 'info');
-        shell_exec( "cd docker && make php-up &>/dev/null" );
-        shell_exec( "cd docker && make database-up &>/dev/null" );
+        shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make php-up &>/dev/null" );
+        shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make database-up &>/dev/null" );
     }
 
     public function healthcheck() {
-        return shell_exec( "cd docker && make -si database-healthcheck" );
+        return shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make -si database-healthcheck" );
     }
 
     public function import_local_file() {
@@ -29,15 +29,15 @@ class Database extends ServiceBase {
             $sql_filename = 'dump';
 
             // Create TMP dir and copy SQL file
-            if ( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/tmp' ) ) {
-                mkdir( $this->get_config()->getCurrentWorkingDir() . '/docker/tmp' );
+            if ( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '/tmp' ) ) {
+                mkdir( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '/tmp' );
             }
-            copy( $db_sql_file_to_import, $this->get_config()->getCurrentWorkingDir() . '/docker/tmp/' . $sql_filename );
+            copy( $db_sql_file_to_import, $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '/tmp/' . $sql_filename );
 
             $this->import_command( 'tmp/' . $sql_filename );
 
             // Remove SQL file
-            unlink( $this->get_config()->getCurrentWorkingDir() . '/docker/tmp/' . $sql_filename );
+            unlink( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '/tmp/' . $sql_filename );
 
             break;
 
@@ -54,13 +54,13 @@ class Database extends ServiceBase {
         $sql_filename = $remote_db_name . '_' . date('c');
 
         // Create TMP dir and copy SQL file
-        if ( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker/tmp' ) ) {
-            mkdir( $this->get_config()->getCurrentWorkingDir() . '/docker/tmp' );
+        if ( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '/tmp' ) ) {
+            mkdir( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '/tmp' );
         }
 
         Render::output( 'Downloading database...' , 'info' );
-        shell_exec( "cd docker && make php-up &>/dev/null" );
-        shell_exec( "cd docker && make remote-mysqldump REMOTE_DB_HOST=$remote_db_host REMOTE_DB_USER=$remote_db_user REMOTE_DB_PASSWORD=$remote_db_password REMOTE_DB_NAME=$remote_db_name SQL_FILE=docker/tmp/$sql_filename" );
+        shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make php-up &>/dev/null" );
+        shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make remote-mysqldump REMOTE_DB_HOST=$remote_db_host REMOTE_DB_USER=$remote_db_user REMOTE_DB_PASSWORD=$remote_db_password REMOTE_DB_NAME=$remote_db_name SQL_FILE=" . $this->get_config()->getDockerDir() . "/tmp/$sql_filename" );
         Render::output( 'Database!' , 'success' );
 
         $this->import_command( 'tmp/' . $sql_filename );
@@ -86,7 +86,7 @@ class Database extends ServiceBase {
         } while( true );
 
         Render::output( 'Database import in progress...' , 'info' );
-        shell_exec( "cd docker && make mysql-import $filename" );
+        shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make mysql-import $filename" );
         Render::output( 'Database successfully imported 🎉' , 'success' );
     }
 }

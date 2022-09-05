@@ -3,24 +3,44 @@
 namespace Wpextend\Cli\Services;
 
 use Wpextend\Cli\Helpers\Render;
+use ZipArchive;
 
 class Docker extends ServiceBase {
 
     public function downloadDockerFiles() {
         
-        Render::output( PHP_EOL. 'Copying docker files...', 'info' );
+        // Curl download
+        Render::output( PHP_EOL. 'Downloading WPE Docker...', 'info' );
+        $fh = fopen( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '.zip', 'w' );
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://github.com/PaulBalanche/wpe-docker/archive/refs/heads/master.zip");
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+        curl_setopt($ch, CURLOPT_FILE, $fh);
+        curl_exec($ch);
+        curl_close($ch);
+        fclose($fh);
 
-        $src = $this->get_config()->getScriptDir() . '/docker';
-        $dest = $this->get_config()->getCurrentWorkingDir() . '/docker';
-        
-        shell_exec( "cp -r $src $dest" );
+        // Zip extract archive
+        $zip = new ZipArchive;
+        if( $zip->open( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '.zip' ) ){
 
-        if( ! file_exists( $this->get_config()->getCurrentWorkingDir() . '/docker' ) ) {
-            Render::output( 'Sorry an error occurs while copying files...' , 'error' );
-            exit;
+            $zip->extractTo( $this->get_config()->getCurrentWorkingDir() );
+            $zip->close();
+
+            // Rename and remove ZIP archive
+            rename( $this->get_config()->getCurrentWorkingDir() . '/wpe-docker-master', $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() );
+            unlink( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '.zip' );
+
+            if( file_exists( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() ) ) {
+                Render::output( 'WPE Docker successfully downloaded 🎉' . PHP_EOL, 'success' );
+                return;
+            }
         }
-        
-        Render::output( 'Files successfully copied 🎉' . PHP_EOL, 'success' );
+
+        Render::output( 'Sorry an error occurs while dowloading WPE-Docker...' , 'error' );
     }
     
     public function setup() {
@@ -55,14 +75,14 @@ class Docker extends ServiceBase {
         $env_content = str_replace( 'DB_ROOT_PASSWORD=DB_ROOT_PASSWORD', 'DB_ROOT_PASSWORD=' . $db_password, $env_content );
         $env_content = str_replace( 'DB_HOST=DB_HOST', 'DB_HOST=' . $db_host, $env_content );
         
-        file_put_contents( $this->get_config()->getCurrentWorkingDir() . '/docker/.env', $env_content );
+        file_put_contents( $this->get_config()->getCurrentWorkingDir() . '/' . $this->get_config()->getDockerDir() . '/.env', $env_content );
 
         Render::output( 'Docker\'s ready 🎉' . PHP_EOL, 'success' );
     }
 
     public function up() {
         
-        shell_exec( "cd docker && make" );
+        shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make" );
     }
 
 }
