@@ -42,7 +42,8 @@ class Docker extends ServiceBase {
             }
         }
 
-        Render::output( 'Sorry an error occurs while dowloading WPE-Docker...' , 'error' );
+        Render::output( 'An error occurs while downloading WPE-Docker...' , 'error' );
+        exit;
     }
     
     public function setup() {
@@ -64,7 +65,7 @@ class Docker extends ServiceBase {
 
         if( property_exists( Main::getInstance()->boilerplateController->getTypeInstance(), 'preferedServerDocumentRoot' ) ) {
             
-            Render::output( PHP_EOL . 'You\'re using ' . sprintf("\033[1;33m%s\033[0;33m", Main::getInstance()->boilerplateController->getTypeInstance()->name) . ', and the default document root is ' . sprintf("\033[1;33m%s\033[0;33m", Main::getInstance()->boilerplateController->getTypeInstance()->preferedServerDocumentRoot) . '.', 'info', false );
+            Render::output( PHP_EOL . 'You\'re using ' . sprintf("\033[1;33m%s\033[0;33m", Main::getInstance()->boilerplateController->getTypeInstance()->name) . ', and usually the default document root is ' . sprintf("\033[1;33m%s\033[0;33m", Main::getInstance()->boilerplateController->getTypeInstance()->preferedServerDocumentRoot) . '.', 'info', false );
             $answer = Terminal::readline( '-- Do you want to use this default document root? (y/n) ', false );
             if( strtolower($answer) == 'y' ) {
                 $server_document_root = Main::getInstance()->boilerplateController->getTypeInstance()->preferedServerDocumentRoot;

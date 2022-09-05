@@ -51,6 +51,12 @@ class Database extends ServiceBase {
         $remote_db_user = Terminal::readline( 'Remote database USER: ', false );
         $remote_db_password = Terminal::read_password( 'Remote database PASSWORD: ', false);
 
+        if( empty($remote_db_host) || empty($remote_db_name) || empty($remote_db_user) || empty($remote_db_password) ) {
+
+            Render::output( 'Some information seems empty... Please provide correct database credentials.' , 'error' );
+            exit;
+        }
+
         $sql_filename = $remote_db_name . '_' . date('c');
 
         // Create TMP dir and copy SQL file
@@ -60,10 +66,15 @@ class Database extends ServiceBase {
 
         Render::output( 'Downloading database...' , 'info' );
         shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make php-up &>/dev/null" );
-        shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make remote-mysqldump REMOTE_DB_HOST=$remote_db_host REMOTE_DB_USER=$remote_db_user REMOTE_DB_PASSWORD=$remote_db_password REMOTE_DB_NAME=$remote_db_name SQL_FILE=" . $this->get_config()->getDockerDir() . "/tmp/$sql_filename" );
-        Render::output( 'Database!' , 'success' );
-
-        $this->import_command( 'tmp/' . $sql_filename );
+        $remote_db_download = shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make remote-mysqldump REMOTE_DB_HOST=$remote_db_host REMOTE_DB_USER=$remote_db_user REMOTE_DB_PASSWORD=$remote_db_password REMOTE_DB_NAME=$remote_db_name SQL_FILE=" . $this->get_config()->getDockerDir() . "/tmp/$sql_filename" );
+        if( $remote_db_download && strpos( $remote_db_download, 'Error' ) === false && strpos( $remote_db_download, 'Unknown database' ) === false ) {
+            Render::output( 'Database!' , 'success' );
+            $this->import_command( 'tmp/' . $sql_filename );
+        }
+        else {
+            Render::output( 'An error occurs while downloading remote database... Try to import local database instead.' , 'error' );
+            exit;
+        }
     }
 
     public function import_command( $filename ) {
