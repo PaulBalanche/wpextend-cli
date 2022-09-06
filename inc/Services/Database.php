@@ -47,22 +47,12 @@ class Database extends ServiceBase {
 
     public function import_remote_file() {
 
-        $remote_environments = Main::getInstance()->environmentsController->get_remote_environments();
-        if( ! is_null($remote_environments) ) {
-            $remote_environments[] = 'Add a new environment...';
+        $remote_environment = Main::getInstance()->environmentsController->choose_remote_environment();
 
-            $response = Main::getInstance()->shellController->select( 'Please select the environment?', $remote_environments );
-
-            if( $response == count($remote_environments) ) {
-                $new_environment = Main::getInstance()->environmentsController->add_remote_environment();
-                $remote_environments[ count($remote_environments) - 1 ] = $new_environment;
-            }
-        }
-
-        $remote_db_host = $this->get_config()->get_data( [ 'env', 'remote', $remote_environments[$response-1], 'database', 'db_host' ], '[' . $remote_environments[$response-1] . '] Database HOST: ' );
-        $remote_db_name = $this->get_config()->get_data( [ 'env', 'remote', $remote_environments[$response-1], 'database', 'db_name' ], '[' . $remote_environments[$response-1] . '] Database NAME: ' );
-        $remote_db_user = $this->get_config()->get_data( [ 'env', 'remote', $remote_environments[$response-1], 'database', 'db_user' ], '[' . $remote_environments[$response-1] . '] Database USER: ' );
-        $remote_db_password = Terminal::read_password( '[' . $remote_environments[$response-1] . '] Database PASSWORD: ', false);
+        $remote_db_host = $this->get_config()->get_data( [ 'env', 'remote', $remote_environment, 'database', 'db_host' ], '[' . $remote_environment . '] Database HOST' );
+        $remote_db_name = $this->get_config()->get_data( [ 'env', 'remote', $remote_environment, 'database', 'db_name' ], '[' . $remote_environment . '] Database NAME' );
+        $remote_db_user = $this->get_config()->get_data( [ 'env', 'remote', $remote_environment, 'database', 'db_user' ], '[' . $remote_environment . '] Database USER' );
+        $remote_db_password = Terminal::read_password( '[' . $remote_environment . '] Database PASSWORD: ', false);
 
         if( empty($remote_db_host) || empty($remote_db_name) || empty($remote_db_user) || empty($remote_db_password) ) {
 

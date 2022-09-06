@@ -78,7 +78,7 @@ class Config {
             if( ! isset($value) ) {
                 $message = ( ! empty($message) ) ? $message : $id_last;
                 if( ! is_null($default_value) ) { $message .= " [$default_value]"; }
-                $value = Terminal::readline( $message . ' : ', false );
+                $value = Terminal::readline( $message . ': ', false );
                 if( empty($value) && ! is_null($default_value) ) { $value = $default_value; }
             }
 
