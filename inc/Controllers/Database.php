@@ -44,21 +44,26 @@ class Database extends ControllerBase {
 
     public function display_import_menu() {
 
-        $select_options = [
-            'Import local file',
-            'Dump and import remote database'
-        ];
-        $response = Main::getInstance()->shellController->select( 'What do you want to do?', $select_options );
-        switch( $response ) {
+        do {
+            $select_options = [
+                'Import local file',
+                'Dump and import remote database'
+            ];
+            $response = Main::getInstance()->shellController->select( 'What do you want to do?', $select_options );
+            switch( $response ) {
 
-            case 1:
-                $this->databaseService->import_local_file();
-                break;
+                case 1:
+                    $filename = $this->databaseService->download_local_file();
+                    break;
 
-            case 2:
-                $this->databaseService->import_remote_file();
-                break;
-        }
+                case 2:
+                    $filename = $this->databaseService->download_remote_file();
+                    break;
+            }
+
+        } while( ! $filename );
+
+        $this->databaseService->import_command( $filename );
     }
 
 }
