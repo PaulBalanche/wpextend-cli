@@ -4,6 +4,7 @@ namespace Wpextend\Cli\Services;
 
 use Wpextend\Cli\Helpers\Render;
 use Wpextend\Cli\Helpers\Terminal;
+use Wpextend\Cli\Controllers\Main;
 
 class Database extends ServiceBase {
 
@@ -46,10 +47,22 @@ class Database extends ServiceBase {
 
     public function import_remote_file() {
 
-        $remote_db_host = Terminal::readline( 'Remote database HOST: ', false );
-        $remote_db_name = Terminal::readline( 'Remote database NAME: ', false);
-        $remote_db_user = Terminal::readline( 'Remote database USER: ', false );
-        $remote_db_password = Terminal::read_password( 'Remote database PASSWORD: ', false);
+        $remote_environments = Main::getInstance()->environmentsController->get_remote_environments();
+        if( ! is_null($remote_environments) ) {
+            $remote_environments[] = 'Add a new environment...';
+
+            $response = Main::getInstance()->shellController->select( 'Please select the environment?', $remote_environments );
+
+            if( $response == count($remote_environments) ) {
+                $new_environment = Main::getInstance()->environmentsController->add_remote_environment();
+                $remote_environments[ count($remote_environments) - 1 ] = $new_environment;
+            }
+        }
+
+        $remote_db_host = $this->get_config()->get_data( [ 'env', 'remote', $remote_environments[$response-1], 'database', 'db_host' ], '[' . $remote_environments[$response-1] . '] Database HOST: ' );
+        $remote_db_name = $this->get_config()->get_data( [ 'env', 'remote', $remote_environments[$response-1], 'database', 'db_name' ], '[' . $remote_environments[$response-1] . '] Database NAME: ' );
+        $remote_db_user = $this->get_config()->get_data( [ 'env', 'remote', $remote_environments[$response-1], 'database', 'db_user' ], '[' . $remote_environments[$response-1] . '] Database USER: ' );
+        $remote_db_password = Terminal::read_password( '[' . $remote_environments[$response-1] . '] Database PASSWORD: ', false);
 
         if( empty($remote_db_host) || empty($remote_db_name) || empty($remote_db_user) || empty($remote_db_password) ) {
 
@@ -66,15 +79,14 @@ class Database extends ServiceBase {
 
         Render::output( 'Downloading database...' , 'info' );
         shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make php-up &>/dev/null" );
-        $remote_db_download = shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make remote-mysqldump REMOTE_DB_HOST=$remote_db_host REMOTE_DB_USER=$remote_db_user REMOTE_DB_PASSWORD=$remote_db_password REMOTE_DB_NAME=$remote_db_name SQL_FILE=" . $this->get_config()->getDockerDir() . "/tmp/$sql_filename" );
-        if( $remote_db_download && strpos( $remote_db_download, 'Error' ) === false && strpos( $remote_db_download, 'Unknown database' ) === false ) {
-            Render::output( 'Database!' , 'success' );
-            $this->import_command( 'tmp/' . $sql_filename );
-        }
-        else {
+        $remote_db_download = shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make -si remote-mysqldump REMOTE_DB_HOST=$remote_db_host REMOTE_DB_USER=$remote_db_user REMOTE_DB_PASSWORD=$remote_db_password REMOTE_DB_NAME=$remote_db_name SQL_FILE=" . $this->get_config()->getDockerDir() . "/tmp/$sql_filename" );
+        if( ! $remote_db_download || strpos( $remote_db_download, 'Error' ) !== false || strpos( $remote_db_download, 'Unknown database' ) !== false ) {
             Render::output( 'An error occurs while downloading remote database... Try to import local database instead.' , 'error' );
             exit;
         }
+        
+        Render::output( 'Database!' , 'success' );
+        $this->import_command( 'tmp/' . $sql_filename );
     }
 
     public function import_command( $filename ) {

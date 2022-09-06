@@ -30,11 +30,10 @@ class Database extends ControllerBase {
 
     public function display_main_menu() {
 
-        Render::output( PHP_EOL . '-- What do you want to do?' . PHP_EOL, 'heading');
         $select_options = [
             'Import database'
         ];
-        $response = Main::getInstance()->shellController->select($select_options);
+        $response = Main::getInstance()->shellController->select( 'What do you want to do?', $select_options );
         switch( $response ) {
 
             case 1:
@@ -45,12 +44,11 @@ class Database extends ControllerBase {
 
     public function display_import_menu() {
 
-        Render::output( PHP_EOL . '-- What do you want to do?' . PHP_EOL, 'heading');
         $select_options = [
             'Import local file',
             'Dump and import remote database'
         ];
-        $response = Main::getInstance()->shellController->select($select_options);
+        $response = Main::getInstance()->shellController->select( 'What do you want to do?', $select_options );
         switch( $response ) {
 
             case 1:

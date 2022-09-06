@@ -56,48 +56,83 @@ class Config {
         return $this->getCurrentWorkingDir() . '/' . $this->config_json_filename;
     }
 
-    public function get_data( $id, $message = '', $default_value = null ) {
+    public function get_data( $ids, $message = '', $default_value = null ) {
 
-        $value = $this->get( $id );
+        $ids = ( ! is_array($ids) ) ? [ $ids ] : $ids;
+        $value = $this->get( $ids );
 
         if( ! is_null($value) ) {
-            Render::output( $id . ' get from WPE config file', 'normal' );
+            Render::output( implode( ' > ', $ids ) . ' retrieved from WPE config file', 'normal' );
         }
         else {
 
-            if( $_ENV && is_array($_ENV) && isset($_ENV[$id]) ) {
-                Render::output( PHP_EOL . "We found $id into environment variables ($_ENV[$id])", 'normal', false );
+            $id_last = $ids[count($ids) - 1];
+            if( $_ENV && is_array($_ENV) && isset($_ENV[$id_last]) ) {
+                Render::output( PHP_EOL . "We found $id_last into environment variables ($_ENV[$id_last])", 'normal', false );
                 $response = Terminal::readline( 'Do you want to use it ? (y/n) ', false );
                 if( $response == 'y' ) {
-                    $value = $_ENV[$id];
+                    $value = $_ENV[$id_last];
                 }
             }
 
             if( ! isset($value) ) {
-                $message = ( ! empty($message) ) ? $message : $id;
+                $message = ( ! empty($message) ) ? $message : $id_last;
                 if( ! is_null($default_value) ) { $message .= " [$default_value]"; }
                 $value = Terminal::readline( $message . ' : ', false );
                 if( empty($value) && ! is_null($default_value) ) { $value = $default_value; }
             }
 
-            $this->set_data( $id, $value );
+            $this->set_data( $ids, $value );
         }
 
         return $value;
     }
 
-    public function get( $id ) {
+    public function get( $ids ) {
         
         $json_data = ( file_exists( $this->get_config_file_path() ) ) ? json_decode( file_get_contents( $this->get_config_file_path() ), true ) : [];
-        return ( isset( $json_data[$id] ) ) ? $json_data[$id] : null;
+
+        $ids = ( ! is_array($ids) ) ? [ $ids ] : $ids;
+        return $this->get_recursive_data( $ids, $json_data );
     }
 
-    public function set_data( $id, $value ) {
+    public function set_data( $ids, $value ) {
         
         $json_data = ( file_exists( $this->get_config_file_path() ) ) ? json_decode( file_get_contents( $this->get_config_file_path() ), true ) : [];
-        $json_data[ $id ] = $value;
+        
+        $ids = ( ! is_array($ids) ) ? [ $ids ] : $ids;
+        $this->set_recursive_data( $ids, $json_data, $value );
 
         file_put_contents( $this->get_config_file_path(), json_encode($json_data, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES) );
+    }
+
+    public function get_recursive_data( $ids, $array ) {
+
+        if( is_array($array) && is_array($ids) && count($ids) > 0 ) {
+
+            $id = array_shift($ids);
+            if( isset($array[$id]) ) {
+
+                return ( count($ids) == 0 ) ? $array[$id] : $this->get_recursive_data( $ids, $array[$id] );
+            }
+        }
+        
+        return null;
+    }
+
+    public function set_recursive_data( $ids, &$array, $value ) {
+
+        if( ! is_array($array) ) {
+            $array = [];
+        }
+        if( count($ids) > 1 ) {
+
+            $id = array_shift($ids);
+            $this->set_recursive_data( $ids, $array[$id], $value );
+        }
+        else if ( count($ids) == 1 ) {
+            $array[$ids[0]] = $value;
+        }
     }
 
 }

@@ -41,13 +41,11 @@ class Init extends ControllerBase {
         if( is_null($boilerplate) || ! in_array($boilerplate, Boilerplate::$type_available) ) {
 
             do{
-
-                Render::output( '-- What\'s the structure of the project? ' . PHP_EOL, 'heading');
                 $select_options = [
                     'Bedrock | WordPress Boilerplate',
                     'Basic Wordpress'
                 ];
-                $response = Main::getInstance()->shellController->select($select_options);
+                $response = Main::getInstance()->shellController->select( 'What\'s the structure of the project?', $select_options );
                 switch( $response ) {
     
                     case 1:
@@ -70,12 +68,11 @@ class Init extends ControllerBase {
     public function display_menu_empty_project() {
         
         Render::output( PHP_EOL . 'Empty project...' , 'info', false);
-        Render::output( PHP_EOL . '-- What do you want to do?' . PHP_EOL, 'heading');
         $select_options = [
             'Pull existing project (Bitbucket)',
             'Create a new Wordpress installation (feature in development...)',
         ];
-        $response = Main::getInstance()->shellController->select($select_options);
+        $response = Main::getInstance()->shellController->select( 'What do you want to do?', $select_options );
         switch( $response ) {
 
             case 1:

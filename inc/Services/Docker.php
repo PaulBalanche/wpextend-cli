@@ -50,18 +50,18 @@ class Docker extends ServiceBase {
 
         $project_name           = basename( $this->get_config()->getCurrentWorkingDir() );
 
-        $wp_home                = $this->get_config()->get_data( 'WP_HOME', 'Site URL', "http://$project_name.local.buzzbrothers.ch:8000");
+        $wp_home                = $this->get_config()->get_data( [ 'env', 'local', 'WP_HOME' ], 'Site URL', "http://$project_name.local.buzzbrothers.ch:8000");
 
         $parsed_url = parse_url($wp_home);
         $project_base_url       = $parsed_url['host'];
         $http_protocol          = $parsed_url['scheme'];
         $public_port            = $parsed_url['port'];
 
-        $db_name                = $this->get_config()->get_data( 'DB_NAME', 'DB name', 'wordpress' );
-        $db_user                = $this->get_config()->get_data( 'DB_USER', 'DB user', 'wordpress' );
-        $db_password            = $this->get_config()->get_data( 'DB_PASSWORD', 'DB password', 'wordpress' );
-        $db_host                = $this->get_config()->get_data( 'DB_HOST', 'DB host', 'mariadb');
-        $db_prefix              = $this->get_config()->get_data( 'DB_PREFIX', 'DB prefix', 'wp_');
+        $db_name                = $this->get_config()->get_data( [ 'env', 'local', 'database', 'DB_NAME' ], 'DB name', 'wordpress' );
+        $db_user                = $this->get_config()->get_data( [ 'env', 'local', 'database', 'DB_USER' ], 'DB user', 'wordpress' );
+        $db_password            = $this->get_config()->get_data( [ 'env', 'local', 'database', 'DB_PASSWORD' ], 'DB password', 'wordpress' );
+        $db_host                = $this->get_config()->get_data( [ 'env', 'local', 'database', 'DB_HOST' ], 'DB host', 'mariadb');
+        $db_prefix              = $this->get_config()->get_data( [ 'env', 'local', 'database', 'DB_PREFIX' ], 'DB prefix', 'wp_');
 
         if( property_exists( Main::getInstance()->boilerplateController->getTypeInstance(), 'preferedServerDocumentRoot' ) ) {
             
@@ -71,7 +71,7 @@ class Docker extends ServiceBase {
                 $server_document_root = Main::getInstance()->boilerplateController->getTypeInstance()->preferedServerDocumentRoot;
             }
             else {
-                $server_document_root  = $this->get_config()->get_data( 'server_document_root', 'Server document root (leave empty if root)', );
+                $server_document_root  = $this->get_config()->get_data( [ 'env', 'local', 'server_document_root' ], 'Server document root (leave empty if root)', );
             }
         }
         if( ! empty($server_document_root) ) { $server_document_root = '/' . trim( $server_document_root, '/'); }

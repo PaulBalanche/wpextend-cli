@@ -13,7 +13,8 @@ class Main extends ControllerBase {
         $contentController,
         $gitController,
         $shellController,
-        $boilerplateController;
+        $boilerplateController,
+        $environmentsController;
 
     private function __construct() {
 
@@ -24,6 +25,7 @@ class Main extends ControllerBase {
         $this->contentController = new Content();
         $this->gitController = new Git();
         $this->shellController = new Shell();
+        $this->environmentsController = new Environments();
     }
 
     /**
@@ -52,14 +54,13 @@ class Main extends ControllerBase {
 
     public function display_main_menu() {
 
-        Render::output( '-- What do you want to do?' . PHP_EOL, 'heading');
         $select_options = [
             'Start docker',
             'Stop docker',
             'Database operations',
             'Download remote uploads'
         ];
-        $response = $this->shellController->select($select_options);
+        $response = $this->shellController->select( 'What do you want to do?', $select_options );
         switch( $response ) {
 
             case 1:
