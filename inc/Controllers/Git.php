@@ -7,9 +7,9 @@ use Wpextend\Cli\Helpers\Terminal;
 
 class Git extends ControllerBase {
 
-    public function pull_from_bitbucket() {
+    public function clone() {
 
-        $remote_ssh_host = Terminal::readline( 'Bitbucket SSH URL ?' );
+        $remote_ssh_host = $this->get_config()->get_data( 'git_url', 'Repository SSH URL ?' );
         system( "git clone $remote_ssh_host ./git_clone" );
 
         $files_git_clone = scandir( $this->get_config()->getCurrentWorkingDir() . '/git_clone' );

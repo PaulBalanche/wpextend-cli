@@ -73,7 +73,7 @@ class Database extends ServiceBase {
         Render::output( 'Downloading database...' , 'info' );
         shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make php-up &>/dev/null" );
         $remote_db_download = shell_exec( "cd " . $this->get_config()->getDockerDir() . " && make -si remote-mysqldump REMOTE_DB_HOST=$remote_db_host REMOTE_DB_USER=$remote_db_user REMOTE_DB_PASSWORD=$remote_db_password REMOTE_DB_NAME=$remote_db_name SQL_FILE=" . $this->get_config()->getDockerDir() . "/" . $this->get_tmp_dirname() . "/$sql_filename" );
-        if( ! $remote_db_download || strpos( $remote_db_download, 'Error' ) !== false || strpos( $remote_db_download, 'Unknown database' ) !== false ) {
+        if( ! is_null($remote_db_download) && ( strpos( $remote_db_download, 'Error' ) !== false || strpos( $remote_db_download, 'Unknown database' ) !== false ) ) {
             Render::output( 'An error occurs while downloading remote database... Try another way to import database.' , 'error' );
             unlink(  $this->get_config()->getDockerDir() . "/" . $this->get_tmp_dirname() . "/" . $sql_filename );
             return false;

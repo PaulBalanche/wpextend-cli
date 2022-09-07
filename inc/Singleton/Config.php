@@ -52,8 +52,12 @@ class Config {
         return $this->docker_dirname;
     }
 
+    public function getConfigJsonFilename() {
+        return $this->config_json_filename;
+    }
+
     public function get_config_file_path() {
-        return $this->getCurrentWorkingDir() . '/' . $this->config_json_filename;
+        return $this->getCurrentWorkingDir() . '/' . $this->getConfigJsonFilename();
     }
 
     public function get_data( $ids, $message = '', $default_value = null ) {

@@ -29,7 +29,9 @@ class Init extends ControllerBase {
         $files_dir = scandir( $this->get_config()->getCurrentWorkingDir() );
         if(
             ( count($files_dir) == 2 && in_array('.', $files_dir) && in_array('..', $files_dir) ) ||
-            ( count($files_dir) == 3 && in_array('.', $files_dir) && in_array('..', $files_dir) && in_array($this->get_config()->getDockerDir(), $files_dir) )
+            ( count($files_dir) == 3 && in_array('.', $files_dir) && in_array('..', $files_dir) && in_array($this->get_config()->getDockerDir(), $files_dir) ) ||
+            ( count($files_dir) == 3 && in_array('.', $files_dir) && in_array('..', $files_dir) && in_array($this->get_config()->getConfigJsonFilename(), $files_dir) ) ||
+            ( count($files_dir) == 4 && in_array('.', $files_dir) && in_array('..', $files_dir) && in_array($this->get_config()->getDockerDir(), $files_dir) && in_array($this->get_config()->getConfigJsonFilename(), $files_dir) )
         ) {
             $this->display_menu_empty_project();
         }
@@ -69,14 +71,14 @@ class Init extends ControllerBase {
         
         Render::output( PHP_EOL . 'Empty project...' , 'info', false);
         $select_options = [
-            'Pull existing project (Bitbucket)',
+            'Clone existing project (Bitbucket, Github, ...)',
             'Create a new Wordpress installation (feature in development...)',
         ];
         $response = Main::getInstance()->shellController->select( 'What do you want to do?', $select_options );
         switch( $response ) {
 
             case 1:
-                Main::getInstance()->gitController->pull_from_bitbucket();
+                Main::getInstance()->gitController->clone();
                 Main::getInstance()->gitController->branch_choice();
                 break;
 
