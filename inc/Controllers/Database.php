@@ -23,31 +23,18 @@ class Database extends ControllerBase {
 
             $answer = Terminal::readline( '-- Missing local database. Do you want to add it? (y/n) ', false );
             if( strtolower($answer) == 'y' ) {
-                $this->display_import_menu();
+                $this->display_main_menu();
             }
         }
     }
 
     public function display_main_menu() {
 
-        $select_options = [
-            'Import database'
-        ];
-        $response = Main::getInstance()->shellController->select( 'What do you want to do?', $select_options );
-        switch( $response ) {
-
-            case 1:
-                $this->display_import_menu();
-                break;
-        }
-    }
-
-    public function display_import_menu() {
-
         do {
             $select_options = [
                 'Import local file',
-                'Dump and import remote database'
+                'Dump/download remote database',
+                'Dump/download remote database & import'
             ];
             $response = Main::getInstance()->shellController->select( 'What do you want to do?', $select_options );
             switch( $response ) {
@@ -57,6 +44,12 @@ class Database extends ControllerBase {
                     break;
 
                 case 2:
+                    $filename = $this->databaseService->download_remote_file();
+                    Render::output( PHP_EOL . 'Dump is here: ' . $this->get_config()->getDockerDir() . '/' .  $filename, 'success');
+                    return;
+                    break;
+                
+                case 3:
                     $filename = $this->databaseService->download_remote_file();
                     break;
             }
